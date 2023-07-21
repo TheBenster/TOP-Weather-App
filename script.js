@@ -1,52 +1,137 @@
-const API_KEY = "a2e07c5b9195a0fe4ebee644a2c90fc9";
+const API_KEY = "5d5ddc24a54942fcb90143007231707";
 const cityInput = document.querySelector("#city-input");
 const searchBtn = document.querySelector("#search");
 const cityDiv = document.querySelector(".city");
+const convert = document.querySelector("#convert");
 
 async function getWeather(city) {
-  const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
+  const url = `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${city}`;
   const response = await fetch(url);
   const data = await response.json();
+  console.log(data);
   const processedData = processData(data);
   displayCity(processedData.cityName, processedData.country);
-  displayWeather(processedData.weather);
+  displayWeather(processedData.weather, processedData.icon);
+  displayTemp(processedData.temp);
+
+  console.log(data);
 }
 
 function processData(data) {
-  const weather = data.weather[0].main;
-  const temp = data.main.temp;
-  const description = data.weather[0].description;
-  const cityName = data.name;
-  const country = data.sys.country;
-  const icon = data.weather[0].icon;
-  const iconUrl = `http://openweathermap.org/img/wn/${icon}@2x.png`;
-  console.log(country);
-  return { weather, temp, description, cityName, country, icon, iconUrl };
+  const weather = data.current.condition.text;
+  const icon = data.current.condition.icon;
+  // const tempF = data.current.temp_f;
+  const temp = data.current.temp_c;
+  // const temp = data.main.temp;
+  // const description = data.weather[0].description;
+  const cityName = data.location.name;
+  const country = data.location.country;
+  // const icon = data.weather[0].icon;
+  // const iconUrl = `http://openweathermap.org/img/wn/${icon}@2x.png`;
+  console.log(weather);
+  return { weather, icon, temp, cityName, country };
 }
 
 searchBtn.addEventListener("click", () => {
-  const city = cityInput.value;
-  cityDiv.innerHTML = "";
-  weatherDiv.innerHTML = "";
-  getWeather(city);
+  // Check if the cityInput value is empty
+  const city = cityInput.value.trim();
+  if (city === "") {
+    // If the city is empty, default to "London"
+    getWeather("London");
+  } else {
+    const parts = city.split(",");
+    const cityName = parts[0].trim();
+    const country = parts[1] ? parts[1].trim() : "";
+    const formattedCity = country ? `${cityName},${country}` : cityName;
+    cityDiv.innerHTML = "";
+    getWeather(formattedCity);
+  }
 });
-
+getWeather("London");
 function displayCity(cityName, country) {
   let cityText = document.createElement("p");
   cityText.textContent = `${cityName}, ${country}`;
   cityDiv.appendChild(cityText);
 }
 
-function displayWeather(weather) {
+function displayWeather(weather, icon) {
   let weatherDiv = document.querySelector(".weatherDiv");
+  weatherDiv.innerHTML = "";
   let weatherText = document.createElement("p");
-  let weatherIcon = document.createElement("svg");
-  if (weather === "Clouds") {
-    weatherIcon.innerHTML =
-      '<svg stroke="black" height="120" width="120" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>clouds</title><path stroke="black" d="M19.19 12.07C19.69 11.54 20 10.82 20 10C20 8.3 18.7 6.84 17 6.84H14.2C14.2 4.17 12.03 2 9.36 2C7.31 2 5.56 3.28 4.85 5.08C2.72 5.14 1 6.89 1 9.04C1 11.22 2.78 13 4.96 13H8.1C8.04 13.33 8 13.66 8 14H7.5C5.57 14 4 15.57 4 17.5S5.57 21 7.5 21H18.5C21 21 23 19 23 16.5C23 14.26 21.34 12.41 19.19 12.07M18.5 19H7.5C6.67 19 6 18.33 6 17.5S6.67 16 7.5 16H10V14C10 12.07 11.57 10.5 13.5 10.5S17 12.07 17 14H18.5C19.88 14 21 15.12 21 16.5S19.88 19 18.5 19Z" /></svg>';
-  }
-
+  let weatherIcon = document.createElement("img");
+  weatherIcon.src = icon;
+  console.log(icon);
   weatherText.textContent = `${weather}`;
   weatherDiv.appendChild(weatherIcon);
   weatherDiv.appendChild(weatherText);
+}
+
+function displayTemp(temp) {
+  let tempDiv = document.querySelector(".tempDiv");
+  tempDiv.innerHTML = "";
+  let tempText = document.createElement("p");
+  let tempIcon = document.createElement("svg");
+  tempText.textContent = `${temp}°C`;
+  tempIcon.innerHTML =
+    '<svg stroke="black" height="50" width="50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>thermometer</title><path d="M15 13V5A3 3 0 0 0 9 5V13A5 5 0 1 0 15 13M12 4A1 1 0 0 1 13 5V8H11V5A1 1 0 0 1 12 4Z" /></svg>';
+  tempDiv.appendChild(tempText);
+  tempDiv.appendChild(tempIcon);
+}
+
+function convertToF(temp) {
+  let currentFarenheit = true;
+  let currentCel = false;
+  return temp * (9 / 5) + 32;
+}
+
+function convertToC(temp) {
+  let currentFarenheit = false;
+  let currentCel = true;
+  return (temp - 32) * (5 / 9);
+}
+
+convert.addEventListener("click", (temp) => {
+  if (currentCel) {
+    convertToF(temp);
+  } else {
+    convertToC(temp);
+  }
+});
+
+function displayNextThreeDays(forecastItems) {
+  const forecastContainer = document.querySelector(".forecast");
+  forecastContainer.innerHTML = "";
+  console.log(forecastItems);
+
+  for (let i = 0; i < 3 && i < forecastItems.length; i++) {
+    const item = forecastItems[i];
+
+    // Access the forecast data from the item object
+    const forecastDate = new Date(item.dt * 1000);
+    const forecastDay = forecastDate.toLocaleString("en-us", {
+      weekday: "long",
+    });
+    const forecastWeather = item.weather[0].main;
+    const forecastTemp = item.main.temp;
+    const forecastIcon = item.weather[0].icon;
+    const forecastIconUrl = `http://openweathermap.org/img/wn/${forecastIcon}.png`;
+
+    const dayDiv = document.createElement("div");
+    dayDiv.classList.add("day");
+
+    const dayName = document.createElement("p");
+    dayName.textContent = forecastDay;
+
+    const weatherIcon = document.createElement("img");
+    weatherIcon.src = forecastIconUrl;
+
+    const temperature = document.createElement("p");
+    temperature.textContent = `${forecastTemp}°C`;
+
+    dayDiv.appendChild(dayName);
+    dayDiv.appendChild(weatherIcon);
+    dayDiv.appendChild(temperature);
+
+    forecastContainer.appendChild(dayDiv);
+  }
 }
