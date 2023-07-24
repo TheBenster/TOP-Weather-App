@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div class="main-img">
+      <img src="japan.jpg" alt="" />
+    </div>
     <div class="search">
       <label for="city-input">Search City</label>
       <div class="enter">
@@ -36,9 +39,27 @@
     <div class="conditions">
       <div class="weatherDiv"></div>
       <div class="tempDiv"></div>
+      <div class="humidity"></div>
+      <div class="uv">
+        <div class="uvBall"></div>
+      </div>
     </div>
-    <div class="forecast">
-      <!-- Container for the forecast -->
+    <div class="misc-stuff">
+      <div class="windDegree">
+        <svg
+          id="wind"
+          width="50"
+          height="50"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+        >
+          <title>chevron-up</title>
+          <path
+            d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z"
+          />
+        </svg>
+        <p id="windDegrees"></p>
+      </div>
     </div>
   </body>
 </html>
