@@ -8,28 +8,28 @@ async function getWeather(city) {
   const url = `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${city}`;
   const response = await fetch(url);
   const data = await response.json();
-  console.log(data);
   const processedData = processData(data);
-  displayCity(processedData.cityName, processedData.country);
+  displayCity(processedData.cityName, processedData.region);
   displayWeather(processedData.weather, processedData.icon);
   displayTemp(processedData.temp);
-
+  displayFeelsLike(processedData.humidity);
+  displayUV(processedData.uv);
+  displayWind(processedData.windDegree);
   console.log(data);
 }
 
 function processData(data) {
   const weather = data.current.condition.text;
   const icon = data.current.condition.icon;
-  // const tempF = data.current.temp_f;
   const temp = data.current.temp_c;
-  // const temp = data.main.temp;
-  // const description = data.weather[0].description;
   const cityName = data.location.name;
-  const country = data.location.country;
-  // const icon = data.weather[0].icon;
-  // const iconUrl = `http://openweathermap.org/img/wn/${icon}@2x.png`;
-  console.log(weather);
-  return { weather, icon, temp, cityName, country };
+  const region = data.location.region;
+  const humidity = data.current.humidity;
+  const uv = data.current.uv;
+  const windDegree = data.current.wind_degree;
+  // const forecast = data.forecast.forecastday.day.condition;
+  // console.log(weather);
+  return { weather, icon, temp, cityName, region, humidity, uv, windDegree };
 }
 
 searchBtn.addEventListener("click", () => {
@@ -42,15 +42,15 @@ searchBtn.addEventListener("click", () => {
     const parts = city.split(",");
     const cityName = parts[0].trim();
     const country = parts[1] ? parts[1].trim() : "";
-    const formattedCity = country ? `${cityName},${country}` : cityName;
+    const formattedCity = country ? `${cityName},${region}` : cityName;
     cityDiv.innerHTML = "";
     getWeather(formattedCity);
   }
 });
 getWeather("London");
-function displayCity(cityName, country) {
+function displayCity(cityName, region) {
   let cityText = document.createElement("p");
-  cityText.textContent = `${cityName}, ${country}`;
+  cityText.textContent = `${cityName}, ${region}`;
   cityDiv.appendChild(cityText);
 }
 
@@ -60,7 +60,7 @@ function displayWeather(weather, icon) {
   let weatherText = document.createElement("p");
   let weatherIcon = document.createElement("img");
   weatherIcon.src = icon;
-  console.log(icon);
+  // console.log(icon);
   weatherText.textContent = `${weather}`;
   weatherDiv.appendChild(weatherIcon);
   weatherDiv.appendChild(weatherText);
@@ -71,67 +71,49 @@ function displayTemp(temp) {
   tempDiv.innerHTML = "";
   let tempText = document.createElement("p");
   let tempIcon = document.createElement("svg");
-  tempText.textContent = `${temp}°C`;
+  tempText.textContent = `${temp}C°`;
   tempIcon.innerHTML =
     '<svg stroke="black" height="50" width="50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>thermometer</title><path d="M15 13V5A3 3 0 0 0 9 5V13A5 5 0 1 0 15 13M12 4A1 1 0 0 1 13 5V8H11V5A1 1 0 0 1 12 4Z" /></svg>';
   tempDiv.appendChild(tempText);
   tempDiv.appendChild(tempIcon);
 }
 
-function convertToF(temp) {
-  let currentFarenheit = true;
-  let currentCel = false;
-  return temp * (9 / 5) + 32;
+function displayFeelsLike(humidity) {
+  let humidityDiv = document.querySelector(".humidity");
+  let humidityNum = document.createElement("p");
+  let humidityText = document.createElement("h3");
+  humidityDiv.innerHTML = "";
+  humidityText.textContent = "Humidity";
+  humidityNum.textContent = `${humidity}%`;
+  humidityDiv.appendChild(humidityNum);
+  humidityDiv.appendChild(humidityText);
 }
 
-function convertToC(temp) {
-  let currentFarenheit = false;
-  let currentCel = true;
-  return (temp - 32) * (5 / 9);
-}
+function displayUV(uv) {
+  const uvDiv = document.querySelector(".uv");
+  uvDiv.innerHTML = ""; // Clear previous content before adding new elements
 
-convert.addEventListener("click", (temp) => {
-  if (currentCel) {
-    convertToF(temp);
+  const uvBall = document.createElement("div");
+  uvBall.classList.add("uvBall");
+  uvBall.textContent = `${uv}`;
+  if (uv > 6) {
+    uvBall.style.backgroundColor = "red";
+  } else if (uv > 3) {
+    uvBall.style.backgroundColor = "yellow";
   } else {
-    convertToC(temp);
+    uvBall.style.backgroundColor = "green";
   }
-});
 
-function displayNextThreeDays(forecastItems) {
-  const forecastContainer = document.querySelector(".forecast");
-  forecastContainer.innerHTML = "";
-  console.log(forecastItems);
+  const uvText = document.createElement("p");
+  uvText.textContent = "UV";
 
-  for (let i = 0; i < 3 && i < forecastItems.length; i++) {
-    const item = forecastItems[i];
+  uvDiv.appendChild(uvBall);
+  uvDiv.appendChild(uvText);
+}
 
-    // Access the forecast data from the item object
-    const forecastDate = new Date(item.dt * 1000);
-    const forecastDay = forecastDate.toLocaleString("en-us", {
-      weekday: "long",
-    });
-    const forecastWeather = item.weather[0].main;
-    const forecastTemp = item.main.temp;
-    const forecastIcon = item.weather[0].icon;
-    const forecastIconUrl = `http://openweathermap.org/img/wn/${forecastIcon}.png`;
-
-    const dayDiv = document.createElement("div");
-    dayDiv.classList.add("day");
-
-    const dayName = document.createElement("p");
-    dayName.textContent = forecastDay;
-
-    const weatherIcon = document.createElement("img");
-    weatherIcon.src = forecastIconUrl;
-
-    const temperature = document.createElement("p");
-    temperature.textContent = `${forecastTemp}°C`;
-
-    dayDiv.appendChild(dayName);
-    dayDiv.appendChild(weatherIcon);
-    dayDiv.appendChild(temperature);
-
-    forecastContainer.appendChild(dayDiv);
-  }
+function displayWind(windDegree) {
+  let windChevron = document.querySelector("#wind");
+  let windDegTxt = document.querySelector("#windDegrees");
+  windChevron.style.transform = `rotate(${Number(windDegree)}deg)`;
+  windDegTxt.textContent = `${windDegree}°`;
 }
