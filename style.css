@@ -193,3 +193,57 @@ input[type="text"] {
 #wind {
   transform: rotate(90deg);
 }
+
+@media only screen and (max-width: 800px) {
+  .conditions {
+    display: grid;
+  }
+  .weatherDiv {
+    height: 15vh;
+
+    display: flex;
+    gap: 0;
+  }
+  .weatherDiv p {
+    font-size: 0.7rem;
+    font-weight: 300;
+  }
+  .humidity {
+    height: 15vh;
+    display: flex;
+    gap: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .humidity h3 {
+    display: none;
+  }
+  .uv {
+    height: 15vh;
+    display: flex;
+    gap: 0;
+  }
+  .uv p {
+    display: none;
+  }
+  .uvBall {
+    height: 60%;
+    width: 60%;
+  }
+  .windDegree {
+    height: 10vh;
+    width: 10vw;
+  }
+  .windDegree #wind {
+    height: 100px;
+  }
+  .tempDiv {
+    height: 15vh;
+    display: flex;
+  }
+  .tempDiv svg {
+    display: none;
+  }
+}
