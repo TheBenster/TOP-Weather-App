@@ -49,7 +49,7 @@ searchBtn.addEventListener("click", () => {
 });
 getWeather("London");
 function displayCity(cityName, country) {
-  let cityText = document.createElement("p");
+  let cityText = document.createElement("h4");
   cityText.textContent = `${cityName}, ${country}`;
   cityDiv.appendChild(cityText);
 }
