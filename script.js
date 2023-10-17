@@ -48,9 +48,9 @@ searchBtn.addEventListener("click", () => {
   }
 });
 getWeather("London");
-function displayCity(cityName, region) {
-  let cityText = document.createElement("h4");
-  cityText.textContent = `${cityName}, ${region}`;
+function displayCity(cityName, country) {
+  let cityText = document.createElement("p");
+  cityText.textContent = `${cityName}, ${country}`;
   cityDiv.appendChild(cityText);
 }
 
@@ -60,8 +60,7 @@ function displayWeather(weather, icon) {
   let weatherText = document.createElement("p");
   let weatherIcon = document.createElement("img");
   weatherIcon.src = icon;
-  weatherIcon.alt = "weather icon";
-  // console.log(icon);
+  console.log(icon);
   weatherText.textContent = `${weather}`;
   weatherDiv.appendChild(weatherIcon);
   weatherDiv.appendChild(weatherText);
